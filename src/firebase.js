@@ -12,7 +12,6 @@ let firebaseConfig = {
 };
 
 let mode = process.env.REACT_APP_MODE || 'dev'
-
 if (mode === 'prod') {
   firebaseConfig = {
     apiKey: process.env.REACT_APP_API_KEY_PROD,
