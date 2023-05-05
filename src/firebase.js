@@ -8,10 +8,9 @@ let firebaseConfig = {
   messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
   appId: process.env.REACT_APP_APP_ID,
   measurementId: process.env.REACT_APP_MEASUREMENT_ID,
-  databaseURL: 'https://chicken-gang-default-rtdb.firebaseio.com'
+  databaseURL: process.env.REACT_APP_DATABASE_URL
 };
 
-console.dir(firebaseConfig)
 let mode = process.env.REACT_APP_MODE || 'dev'
 
 if (mode === 'prod') {
