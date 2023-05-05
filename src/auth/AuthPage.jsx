@@ -16,27 +16,22 @@ const AuthPage = () => {
   const [checkPassword, setCheckPassword] = useState("");
 
   const authCtx = useContext(AuthContext);
-  //
-  // if (authCtx.user?.type === "student") {
-  //   return <Redirect to="student/dashboard" />;
-  // }
-  //
-  // if (authCtx.user?.type === "teacher") {
-  //   return <Redirect to="teacher/dashboard" />;
-  // }
-  //
-  // if (authCtx.user?.type === "admin") {
-  //   return <Redirect to="admin" />;
-  // }
+
+  console.dir(authCtx.user)
+  if (authCtx.user?.uid !== "") {
+    return <Redirect to="dashboard" />;
+  }
 
   // firebase vars
   const auth = getAuth(app);
-  const db = ref(getDatabase(app));
+  const db = getDatabase(app);
 
   const createAccountHandler = () => {
     if (newPassword === checkPassword && newPassword !== "") {
       createUserWithEmailAndPassword(auth, email, newPassword)
         .then((userCredential) => {
+          console.log('user created')
+          console.dir(userCredential)
           const user = userCredential.user;
           addUserToDatabase(user);
         })
@@ -49,6 +44,8 @@ const AuthPage = () => {
   };
 
   const addUserToDatabase = (user) => {
+    console.log('add user')
+    console.dir(user)
     let newUser = {
       first_name: "Unknown",
       last_name: "User",
