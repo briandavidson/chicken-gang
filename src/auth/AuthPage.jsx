@@ -17,8 +17,7 @@ const AuthPage = () => {
 
   const authCtx = useContext(AuthContext);
 
-  console.dir(authCtx.user)
-  if (authCtx.user?.uid !== "") {
+  if (authCtx.user) {
     return <Redirect to="dashboard" />;
   }
 
@@ -82,6 +81,8 @@ const AuthPage = () => {
       if (snapshot.exists()) {
         const user = snapshot.val()
         user.uid = userCredential.user.uid
+        console.log('logging in user')
+        console.dir(user)
         authCtx.login(user)
       } else {
         console.log("No user data available");

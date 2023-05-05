@@ -11,10 +11,18 @@ const DashboardPage = () => {
   console.dir(user)
   const db = ref(getDatabase(app));
   let history = useHistory();
+
+  const logout = () => {
+    authCtx.logout()
+  }
+
   return (
-    <div className="dashboard">
-      Welcome {authCtx.user?.email}, to the cynerge chicken experience!
-    </div>
+    <>
+      <div className="dashboard">
+        Welcome {authCtx.user?.email}, to the cynerge chicken experience!
+      </div>
+      <button onClick={() => logout()}>logout</button>
+    </>
   );
 };
 
