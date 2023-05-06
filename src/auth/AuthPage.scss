@@ -1,66 +1,57 @@
-.auth-btn {
-  border: 2px solid black;
-  background-color: #ff2b2e;
-  border-radius: 10px;
-  color: white;
-  padding: 5px;
-  margin: 10px;
-  &:hover{
-    color: black;
-    cursor: pointer;
-  }
-}
-
-.auth-button-container {
-  margin-top: 20px;
-}
-
-.auth-button-container * {
-  margin: 5px;
-}
-
-.auth-container {
-  width: 600px;
-  border: 2px solid black;
-  border-radius: 5px;
-  padding: 15px;
-  background: #f1f1f1;
-}
-
-.auth-container p {
-  margin: 10px 0 0 0;
-}
-
-.auth-input {
-  padding: 3px;
-}
-
-.auth-logo {
-  width: 85%;
-  padding: 15px;
-  border-radius: 5px;
-}
-
 .auth-page {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-}
-
-.auth-subtitle {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-  Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-font-weight: 200;
-color: black;
-font-size: 30px;
-}
-
-.auth-title {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  font-weight: 300;
-  color: #54763f;
-  font-size: 100px;
+  .auth-container {
+    width: 600px;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 15px;
+    background: #f1f1f1;
+    p {
+      margin: 10px 0 0 0;
+    }
+    .auth-input {
+      padding: 3px;
+    }
+    .auth-button-container {
+      margin-top: 20px;
+      .auth-btn {
+        border: 2px solid black;
+        background-color: #ff2b2e;
+        border-radius: 10px;
+        color: white;
+        padding: 5px;
+        margin: 10px;
+        &:hover{
+          color: black;
+          cursor: pointer;
+        }
+      }
+    }
+    .auth-button-container * {
+      margin: 5px;
+    }
+    .auth-logo {
+      width: 85%;
+      padding: 15px;
+      border-radius: 5px;
+    }
+  }
+  .wallpaper {
+    background-image: url('../assets/images/chicken_wallpaper.jpg');
+    height: 1000%;
+    width: 1000%;
+    position: fixed;
+    top: 0;
+    right: 0;
+    transition: all ease-out 250s;
+    z-index: -1;
+    &.animated {
+      top: -900%;
+      right: -900%;
+    }
+  }
 }

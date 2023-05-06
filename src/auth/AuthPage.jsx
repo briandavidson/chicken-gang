@@ -1,5 +1,5 @@
 import React, {useState, useContext} from 'react'
-import { Link, Redirect } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import AuthContext from "../store/auth-context";
 import ChickenGangLogo from '../assets/images/chicken_gang2.png';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
@@ -14,8 +14,19 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
-
+  const [animating, setAnimating] = useState(true)
   const authCtx = useContext(AuthContext);
+
+  React.useEffect(() => {
+    setAnimating((prev) => {
+      return !prev
+    })
+    setInterval(() => {
+      setAnimating((prev) => {
+        return !prev
+      })
+    }, 250000)
+  }, [])
 
   if (authCtx.user) {
     return <Redirect to="dashboard" />;
@@ -43,8 +54,6 @@ const AuthPage = () => {
   };
 
   const addUserToDatabase = (user) => {
-    console.log('add user')
-    console.dir(user)
     let newUser = {
       first_name: "Unknown",
       last_name: "User",
@@ -95,6 +104,7 @@ const AuthPage = () => {
     <>
     {mode === 'login' && (
       <div className="auth-page">
+        <div className={animating ? 'wallpaper animated' : 'wallpaper'}></div>
         <div className="auth-container">
           <img src={ChickenGangLogo} alt="" className="auth-logo" />
           <hr />
@@ -131,48 +141,48 @@ const AuthPage = () => {
     )}
     {mode === 'signup' && (
       <div className="auth-page">
-      <div className="auth-container">
-        <img
-          src={ChickenGangLogo}
-          alt="class bucks logo"
-          className="auth-logo"
-        />
-        <p>Enter Email</p>
-        <input
-          className="auth-input"
-          type="email"
-          placeholder="email"
-          onChange={(event) => {
-            setEmail(event.target.value);
-          }}
-        />
-        <p>Create Password</p>
-        <input
-          className="auth-input"
-          type="password"
-          placeholder="password"
-          onChange={(event) => {
-            setNewPassword(event.target.value);
-          }}
-        />
-        <p>Confirm Password</p>
-        <input
-          className="auth-input"
-          type="password"
-          placeholder="password"
-          onChange={(event) => {
-            setCheckPassword(event.target.value);
-          }}
-        />
-        <br />
-        <div className="auth-button-container">
-          <button className="auth-btn" onClick={createAccountHandler}>
-            Submit
-          </button>
-          <button className="auth-btn" onClick={() => switchToLogin()}>Already Have An Account</button>
+        <div className="auth-container">
+          <img
+            src={ChickenGangLogo}
+            alt="class bucks logo"
+            className="auth-logo"
+          />
+          <p>Enter Email</p>
+          <input
+            className="auth-input"
+            type="email"
+            placeholder="email"
+            onChange={(event) => {
+              setEmail(event.target.value);
+            }}
+          />
+          <p>Create Password</p>
+          <input
+            className="auth-input"
+            type="password"
+            placeholder="password"
+            onChange={(event) => {
+              setNewPassword(event.target.value);
+            }}
+          />
+          <p>Confirm Password</p>
+          <input
+            className="auth-input"
+            type="password"
+            placeholder="password"
+            onChange={(event) => {
+              setCheckPassword(event.target.value);
+            }}
+          />
+          <br/>
+          <div className="auth-button-container">
+            <button className="auth-btn" onClick={createAccountHandler}>
+              Submit
+            </button>
+            <button className="auth-btn" onClick={() => switchToLogin()}>Already Have An Account</button>
+          </div>
         </div>
       </div>
-    </div>
     )}
     </>
   );
