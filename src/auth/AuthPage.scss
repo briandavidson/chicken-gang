@@ -40,18 +40,25 @@
       border-radius: 5px;
     }
   }
+
+  @keyframes fly {
+    0% {top: 0; right: 0;}
+    100% {top: -445px; right: -445px;}
+  }
+
   .wallpaper {
     background-image: url('../assets/images/chicken_wallpaper.jpg');
-    height: 1000%;
-    width: 1000%;
+    height: 200%;
+    width: 200%;
+    background-repeat: repeat;
     position: fixed;
     top: 0;
     right: 0;
-    transition: all ease-out 250s;
     z-index: -1;
-    &.animated {
-      top: -900%;
-      right: -900%;
-    }
+    animation-direction: reverse;
+    animation-timing-function: linear;
+    animation-name: fly;
+    animation-duration: 8s;
+    animation-iteration-count: infinite;
   }
 }

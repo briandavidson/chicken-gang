@@ -14,20 +14,9 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
-  const [animating, setAnimating] = useState(true)
   const authCtx = useContext(AuthContext);
 
-  React.useEffect(() => {
-    setAnimating((prev) => {
-      return !prev
-    })
-    setInterval(() => {
-      setAnimating((prev) => {
-        return !prev
-      })
-    }, 250000)
-  }, [])
-
+  // redirect logged in user to private route
   if (authCtx.user) {
     return <Redirect to="dashboard" />;
   }
@@ -36,12 +25,11 @@ const AuthPage = () => {
   const auth = getAuth(app);
   const db = getDatabase(app);
 
+  // create user record in firebase auth
   const createAccountHandler = () => {
     if (newPassword === checkPassword && newPassword !== "") {
       createUserWithEmailAndPassword(auth, email, newPassword)
         .then((userCredential) => {
-          console.log('user created')
-          console.dir(userCredential)
           const user = userCredential.user;
           addUserToDatabase(user);
         })
@@ -53,6 +41,7 @@ const AuthPage = () => {
     }
   };
 
+  // create user record in firebase db
   const addUserToDatabase = (user) => {
     let newUser = {
       first_name: "Unknown",
@@ -90,8 +79,6 @@ const AuthPage = () => {
       if (snapshot.exists()) {
         const user = snapshot.val()
         user.uid = userCredential.user.uid
-        console.log('logging in user')
-        console.dir(user)
         authCtx.login(user)
       } else {
         console.log("No user data available");
@@ -104,7 +91,7 @@ const AuthPage = () => {
     <>
     {mode === 'login' && (
       <div className="auth-page">
-        <div className={animating ? 'wallpaper animated' : 'wallpaper'}></div>
+        <div className="wallpaper"></div>
         <div className="auth-container">
           <img src={ChickenGangLogo} alt="" className="auth-logo" />
           <hr />
@@ -141,6 +128,7 @@ const AuthPage = () => {
     )}
     {mode === 'signup' && (
       <div className="auth-page">
+        <div className="wallpaper"></div>
         <div className="auth-container">
           <img
             src={ChickenGangLogo}
