@@ -2,7 +2,28 @@
   background: #f1f1f1;
   position: absolute;
   width: 100%;
+  .action-buttons {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    .action-button {
+      background: white;
+      border: 1px solid black;
+      border-radius: 3px;
+      margin-left: 10px;
+      cursor: pointer;
+      &.new-place {
+        padding: 5px 10px;
+      }
+      &.map-view {
+        padding: 5px 5px 5px 8px;
+      }
+    }
+  }
   .chicken-places-list {
+    position: absolute;
+    width: calc(100% - 40px);
+    top: 40px;
     margin: 20px;
     border-radius: 10px;
     background: white;
@@ -28,6 +49,47 @@
           border-bottom: none;
         }
       }
+    }
+  }
+}
+.modal-background {
+  position: absolute;
+  z-index: 10;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, .8);
+}
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid black;
+  border-radius: 5px;
+  background: white;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 300px;
+  .input-label {
+    margin-bottom: 10px;
+  }
+  input {
+    margin-bottom: 20px;
+  }
+  .place-name-input {
+    height: 30px;
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: end;
+    span {
+      cursor: pointer;
+      margin-left: 20px;
+      border: 1px solid black;
+      border-radius: 3px;
+      padding: 5px 10px;
     }
   }
 }
