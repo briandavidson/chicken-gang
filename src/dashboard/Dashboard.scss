@@ -1,0 +1,33 @@
+.dashboard {
+  background: #f1f1f1;
+  position: absolute;
+  width: 100%;
+  .chicken-places-list {
+    margin: 20px;
+    border-radius: 10px;
+    background: white;
+    border: 1px solid black;
+    .column-headers {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid black;
+      span {
+        font-weight: bold;
+        margin: 10px 20px;
+      }
+    }
+    .chicken-places {
+      .chicken-place {
+        border-bottom: 1px solid darkgray;
+        display: flex;
+        justify-content: space-between;
+        span {
+          margin: 10px 20px;
+        }
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+}
