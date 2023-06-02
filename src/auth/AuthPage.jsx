@@ -1,7 +1,7 @@
 import React, {useState, useContext} from 'react'
 import { Redirect } from 'react-router-dom'
 import AuthContext from "../store/auth-context";
-import ChickenGangLogo from '../assets/images/chicken_gang2.png';
+import ChickenGangLogo from '../assets/images/chicken_gang3.png';
 import bok1 from '../assets/sounds/bok1.mp3'
 import bok2 from '../assets/sounds/bok2.mp3'
 import bok3 from '../assets/sounds/bok3.mp3'
