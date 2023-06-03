@@ -1,10 +1,14 @@
 import React from 'react'
-import { GoogleMap } from '@react-google-maps/api'
+import { GoogleMap, Marker } from '@react-google-maps/api'
 import './Map.scss'
 
-const Map = () => {
+const Map = ({zoom, lat, lng}) => {
   return (
-    <GoogleMap zoom={13} center={{lat: 42.637760, lng: -83.292260}} mapContainerClassName="map-container"></GoogleMap>
+    <GoogleMap zoom={zoom} center={{lat: lat, lng: lng}} mapContainerClassName="map-container">
+      {(lat && lng) && (
+        <Marker position={{lat: lat, lng: lng}}/>
+      )}
+    </GoogleMap>
   )
 }
 

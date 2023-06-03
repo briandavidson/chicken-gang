@@ -1,6 +1,8 @@
 import React from "react";
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
 import usePlacesAutocomplete, { getGeocode, getLatLng, } from 'use-places-autocomplete'
+import app from '../firebase.js'
+import { getDatabase, get, child, ref, update } from "firebase/database";
 import AuthContext from '../store/auth-context'
 import NavbarComponent from '../navbar/Navbar'
 import Map from '../map/Map'
@@ -8,6 +10,9 @@ import './Dashboard.scss';
 
 const DashboardPage = () => {
   const [view, setView] = React.useState('list')
+  const [zoom, setZoom] = React.useState(13)
+  const [lat, setLat] = React.useState(42.637760)
+  const [lng, setLng] = React.useState(-83.292260)
   const [chickenPlaces, setChickenPlaces] = React.useState([])
   const [showingNewPlaceForm, setShowingNewPlaceForm] = React.useState(false)
   const [showingPlacesAutocomplete, setShowingPlacesAutocomplete] = React.useState(false)
@@ -15,6 +20,7 @@ const DashboardPage = () => {
   const [newPlaceScore, setNewPlaceScore] = React.useState(0)
   const [selected, setSelected] = React.useState(null)
   const authCtx = React.useContext(AuthContext)
+  const db = ref(getDatabase(app));
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_MAP_API_KEY,
@@ -22,25 +28,8 @@ const DashboardPage = () => {
   })
 
   React.useEffect(() => {
-    setChickenPlaces((prev) => {
-      return [{
-        name: 'Honey Wings',
-        score: 6.8
-      }, {
-        name: `My Ex-Wife's Famous Chicken`,
-        score: 6.5
-      }, {
-        name: `Dave's Hot Chicken`,
-        score: 9.7
-      }, {
-        name: `Chicken Shack`,
-        score: 4.2
-      }, {
-        name: `Noori Chicken`,
-        score: 9.5
-      }]
-    })
-  }, [])
+    getUserScores()
+  }, [authCtx.user])
 
   const toggleMapView = () => {
     setView((prev) => {
@@ -67,8 +56,34 @@ const DashboardPage = () => {
     setShowingPlacesAutocomplete(true)
   }
 
+  const getUserScores = () => {
+    get(child(db, `/users/${authCtx?.user?.uid}/places`)).then((snapshot) => {
+      let places = [];
+      snapshot.forEach((placeSnapshot) => {
+        let place = placeSnapshot.val();
+        place.uid = placeSnapshot.key;
+        places.push(place);
+      });
+      setChickenPlaces(places)
+    });
+  }
+
   const createNewPlace = () => {
-    console.log('create new place')
+    let updates = {}
+    updates[`users/${authCtx.user.uid}/places/${selected.place_id}`] = {
+      coordinates: selected.coordinates,
+      description: selected.description,
+      score: newPlaceScore
+    }
+    updates[`places/${selected.place_id}/description`] = selected.description
+    updates[`places/${selected.place_id}/coordinates`] = selected.coordinates
+    updates[`places/${selected.place_id}/scores/${authCtx.user.uid}/overall`] = newPlaceScore
+    update((db), updates).then(() => {
+      setShowingNewPlaceForm(false)
+      setShowingPlacesAutocomplete(false)
+      setView('list')
+      getUserScores()
+    })
   }
 
   const PlacesAutocomplete = ({setSelected}) => {
@@ -80,13 +95,28 @@ const DashboardPage = () => {
       clearSuggestions,
     } = usePlacesAutocomplete()
 
+    const handleSelect = async (place) => {
+      const results = await getGeocode({address: place.description})
+      let lat_lng = await getLatLng(results[0])
+      setLat(lat_lng.lat)
+      setLng(lat_lng.lng)
+      setSelected((prev) => {
+        return {
+          coordinates: lat_lng,
+          place_id: place.place_id,
+          description: place.description
+        }
+      })
+      setShowingNewPlaceForm(true)
+    }
+
     return (
       <>
         <input value={value} onChange={e => setValue(e.target.value)} disabled={!ready} className="places-input" placeholder="Search For Chicken"/>
           {status === "OK" && (
             <div className="places-results">
-            {data.map(({place_id, description}) => (
-              <span className="places-result" key={place_id} value={description}>{description}</span>
+            {data.map((place) => (
+              <span onClick={() => handleSelect(place)} className="places-result" key={place.place_id} value={place.description}>{place.description}</span>
             ))}
             </div>
           )}
@@ -94,47 +124,31 @@ const DashboardPage = () => {
     )
   }
 
-  const NewPlaceForm = () => {
-    return (
-      <>
-        <div className="modal new-place-modal">
-          <span className="input-label">Name</span>
-          <input
-            className="place-name-input"
-            type="text"
-            onChange={(event) => changeNewPlaceName(event)}
-          />
-          <span className="input-label">Score</span>
-          <input
-            className="place-score-input"
-            type="range"
-            min="0"
-            max="10"
-            step=".1"
-            default="0"
-            onChange={(event) => changeNewPlaceScore(event)}
-          />
-        </div>
-      </>
-    )
-  }
-
   const ChickenPlacesList = () => {
     return (
-      <div className="chicken-places-list">
-        <div className="column-headers">
-          <span>Place</span>
-          <span>Score</span>
-        </div>
-        <div className="chicken-places">
-          {chickenPlaces.map((place, i) => (
-            <div className="chicken-place" key={i}>
-              <span>{place.name}</span>
-              <span>{place.score}</span>
+      <>
+        {chickenPlaces?.length > 0 && (
+          <div className="chicken-places-list">
+            <div className="column-headers">
+              <span>Place</span>
+              <span>Score</span>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="chicken-places">
+              {chickenPlaces.map((place, i) => (
+                <div className="chicken-place" key={i}>
+                  <span>{place.description}</span>
+                  <span>{place.score}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {chickenPlaces?.length === 0 && (
+          <div className="no-reviews">
+            <span>What, don't you like chicken? You haven't reviewed any places! Click on the '+' button to get started!</span>
+          </div>
+        )}
+      </>
     )
   }
 
@@ -169,7 +183,7 @@ const DashboardPage = () => {
                 </div>
               )}
               <ActionButtons/>
-              <Map/>
+              <Map zoom={zoom} lat={lat} lng={lng}/>
             </>
           )}
         </div>
@@ -178,12 +192,7 @@ const DashboardPage = () => {
         <>
           <div className="modal-background" onClick={() => setShowingNewPlaceForm(false)}></div>
           <div className="modal new-place-modal">
-            <span className="input-label">Name</span>
-            <input
-              className="place-name-input"
-              type="text"
-              onChange={(event) => changeNewPlaceName(event)}
-            />
+            <span className="input-label">{selected.description}</span>
             <span className="input-label">Score: {newPlaceScore}</span>
             <input
               className="place-score-input"
