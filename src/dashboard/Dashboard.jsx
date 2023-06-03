@@ -1,5 +1,6 @@
 import React from "react";
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
+import usePlacesAutocomplete, { getGeocode, getLatLng, } from 'use-places-autocomplete'
 import AuthContext from '../store/auth-context'
 import NavbarComponent from '../navbar/Navbar'
 import Map from '../map/Map'
@@ -9,12 +10,15 @@ const DashboardPage = () => {
   const [view, setView] = React.useState('list')
   const [chickenPlaces, setChickenPlaces] = React.useState([])
   const [showingNewPlaceForm, setShowingNewPlaceForm] = React.useState(false)
+  const [showingPlacesAutocomplete, setShowingPlacesAutocomplete] = React.useState(false)
   const [newPlaceName, setNewPlaceName] = React.useState('')
   const [newPlaceScore, setNewPlaceScore] = React.useState(0)
+  const [selected, setSelected] = React.useState(null)
   const authCtx = React.useContext(AuthContext)
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.REACT_APP_MAP_API_KEY
+    googleMapsApiKey: process.env.REACT_APP_MAP_API_KEY,
+    libraries: ['places']
   })
 
   React.useEffect(() => {
@@ -58,8 +62,36 @@ const DashboardPage = () => {
     })
   }
 
+  const clickNewPlace = () => {
+    setView('map')
+    setShowingPlacesAutocomplete(true)
+  }
+
   const createNewPlace = () => {
     console.log('create new place')
+  }
+
+  const PlacesAutocomplete = ({setSelected}) => {
+    const {
+      ready,
+      value,
+      setValue,
+      suggestions: {status, data},
+      clearSuggestions,
+    } = usePlacesAutocomplete()
+
+    return (
+      <>
+        <input value={value} onChange={e => setValue(e.target.value)} disabled={!ready} className="places-input" placeholder="Search For Chicken"/>
+          {status === "OK" && (
+            <div className="places-results">
+            {data.map(({place_id, description}) => (
+              <span className="places-result" key={place_id} value={description}>{description}</span>
+            ))}
+            </div>
+          )}
+      </>
+    )
   }
 
   const NewPlaceForm = () => {
@@ -109,7 +141,7 @@ const DashboardPage = () => {
   const ActionButtons = () => {
     return (
       <div className={view === 'list' ? 'action-buttons list-mode' : 'action-buttons'}>
-        <span onClick={() => setShowingNewPlaceForm(true)} className="action-button new-place">+</span>
+        <span onClick={() => clickNewPlace()} className="action-button new-place">+</span>
         <span onClick={() => toggleMapView()} className="action-button map-view">🚩</span>
       </div>
     )
@@ -131,6 +163,11 @@ const DashboardPage = () => {
           )}
           {isLoaded && (
             <>
+              {showingPlacesAutocomplete && (
+                <div className="places-container">
+                  <PlacesAutocomplete setSelected={setSelected}/>
+                </div>
+              )}
               <ActionButtons/>
               <Map/>
             </>

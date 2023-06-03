@@ -111,3 +111,37 @@
   height: 100%;
   width: 100%;
 }
+
+.places-container {
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  right: 160px;
+  .places-input {
+    height: 40px;
+    border: none;
+    padding: 0px 5px;
+    width: 150px;
+    position: absolute;
+    right: 0px;
+  }
+  .places-results {
+    position: absolute;
+    background: white;
+    top: 50px;
+    width: 210px;
+    right: -50px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: gray 0px 3px 6px 2px;
+    border-radius: 3px;
+    .places-result {
+      padding: 0px 10px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      &:hover {
+        background: #f1f1f1;
+      }
+    }
+  }
+}
