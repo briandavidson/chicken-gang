@@ -1,14 +1,21 @@
 import React from "react";
+import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
 import AuthContext from '../store/auth-context'
 import NavbarComponent from '../navbar/Navbar'
+import Map from '../map/Map'
 import './Dashboard.scss';
 
 const DashboardPage = () => {
+  const [view, setView] = React.useState('list')
   const [chickenPlaces, setChickenPlaces] = React.useState([])
   const [showingNewPlaceForm, setShowingNewPlaceForm] = React.useState(false)
   const [newPlaceName, setNewPlaceName] = React.useState('')
   const [newPlaceScore, setNewPlaceScore] = React.useState(0)
   const authCtx = React.useContext(AuthContext)
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_MAP_API_KEY
+  })
 
   React.useEffect(() => {
     setChickenPlaces((prev) => {
@@ -31,8 +38,14 @@ const DashboardPage = () => {
     })
   }, [])
 
-  const showMapView = () => {
-
+  const toggleMapView = () => {
+    setView((prev) => {
+      if (prev === 'list') {
+        return 'map'
+      } else {
+        return 'list'
+      }
+    })
   }
 
   const changeNewPlaceName = (event) => {
@@ -95,9 +108,9 @@ const DashboardPage = () => {
 
   const ActionButtons = () => {
     return (
-      <div className="action-buttons">
+      <div className={view === 'list' ? 'action-buttons list-mode' : 'action-buttons'}>
         <span onClick={() => setShowingNewPlaceForm(true)} className="action-button new-place">+</span>
-        <span onClick={() => showMapView()} className="action-button map-view">🚩</span>
+        <span onClick={() => toggleMapView()} className="action-button map-view">🚩</span>
       </div>
     )
   }
@@ -105,10 +118,25 @@ const DashboardPage = () => {
   return (
     <>
       <NavbarComponent/>
-      <div className="dashboard">
-        <ActionButtons/>
-        <ChickenPlacesList/>
-      </div>
+      {view === 'list' && (
+        <div className="dashboard">
+          <ActionButtons/>
+          <ChickenPlacesList/>
+        </div>
+      )}
+      {view === 'map' && (
+        <div className="dashboard">
+          {!isLoaded && (
+            <div>Loading...</div>
+          )}
+          {isLoaded && (
+            <>
+              <ActionButtons/>
+              <Map/>
+            </>
+          )}
+        </div>
+      )}
       {showingNewPlaceForm && (
         <>
           <div className="modal-background" onClick={() => setShowingNewPlaceForm(false)}></div>
