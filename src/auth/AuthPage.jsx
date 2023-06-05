@@ -42,6 +42,9 @@ const AuthPage = () => {
           const errorCode = error.code;
           const errorMessage = error.message;
           console.log("errorCode, errorMessage:", errorCode, errorMessage);
+          if (errorCode === "auth/weak-password") {
+            alert("Password must be 6 characters!");
+          }
         });
     }
   };
