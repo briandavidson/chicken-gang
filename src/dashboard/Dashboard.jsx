@@ -28,7 +28,7 @@ const DashboardPage = () => {
   })
 
   React.useEffect(() => {
-    getUserScores()
+    getChickenScores()
   }, [authCtx.user])
 
   const toggleMapView = () => {
@@ -56,14 +56,24 @@ const DashboardPage = () => {
     setShowingPlacesAutocomplete(true)
   }
 
-  const getUserScores = () => {
-    get(child(db, `/users/${authCtx?.user?.uid}/places`)).then((snapshot) => {
+  const getPlaceAverages = async (place_uid) => {
+    let placeData = await get(child(db, `places/${place_uid}/averages/`)).then((snapshot) => {
+      return snapshot.val()
+    })
+    return placeData
+  }
+
+  const getChickenScores = async () => {
+    get(child(db, `/users/${authCtx?.user?.uid}/places`)).then(async (snapshot) => {
       let places = [];
-      snapshot.forEach((placeSnapshot) => {
-        let place = placeSnapshot.val();
-        place.uid = placeSnapshot.key;
+      let placesData = snapshot.val()
+      for (var place_id in placesData) {
+        let place = placesData[place_id]
+        place.uid = place_id;
+        let placeAverages = await getPlaceAverages(place.uid)
+        place.averages = placeAverages
         places.push(place);
-      });
+      }
       setChickenPlaces(places)
     });
   }
@@ -82,7 +92,7 @@ const DashboardPage = () => {
       setShowingNewPlaceForm(false)
       setShowingPlacesAutocomplete(false)
       setView('list')
-      getUserScores()
+      getChickenScores()
     })
   }
 
@@ -130,14 +140,16 @@ const DashboardPage = () => {
         {chickenPlaces?.length > 0 && (
           <div className="chicken-places-list">
             <div className="column-headers">
-              <span>Place</span>
-              <span>Score</span>
+              <span style={{'width': '50%', 'textAlign': 'left'}}>Place</span>
+              <span style={{'width': '25%', 'textAlign': 'center'}}>Your Score</span>
+              <span style={{'width': '25%', 'textAlign': 'center'}}>Chicken Gang Score</span>
             </div>
             <div className="chicken-places">
               {chickenPlaces.map((place, i) => (
                 <div className="chicken-place" key={i}>
-                  <span>{place.description}</span>
-                  <span>{place.score}</span>
+                  <span style={{'width': '50%', 'textAlign': 'left'}}>{place.description}</span>
+                  <span style={{'width': '25%', 'textAlign': 'center'}}>{place.score}</span>
+                  <span style={{'width': '25%', 'textAlign': 'center'}}>{place.averages.overall}</span>
                 </div>
               ))}
             </div>
