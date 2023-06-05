@@ -18,6 +18,7 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState('')
   const authCtx = useContext(AuthContext);
 
   // redirect logged in user to private route
@@ -31,6 +32,10 @@ const AuthPage = () => {
 
   // create user record in firebase auth
   const createAccountHandler = () => {
+    if (newPassword !== checkPassword) {
+      setErrorMessage('Passwords do not match')
+      return
+    }
     if (newPassword === checkPassword && newPassword !== "") {
       playBigokSound()
       createUserWithEmailAndPassword(auth, email, newPassword)
@@ -39,9 +44,10 @@ const AuthPage = () => {
           addUserToDatabase(user);
         })
         .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          console.log("errorCode, errorMessage:", errorCode, errorMessage);
+          setErrorMessage((prev) => {
+            return error.message
+          })
+          console.dir(error)
         });
     }
   };
@@ -64,7 +70,9 @@ const AuthPage = () => {
     signInWithEmailAndPassword(auth, enteredEmail, enteredPassword).then((userCredential) => {
       getUserData(userCredential)
     }).catch((error) => {
-      console.dir(error)
+      setErrorMessage((prev) => {
+        return error.message
+      })
     })
   };
 
@@ -157,6 +165,8 @@ const AuthPage = () => {
             placeholder="password"
             onChange={(event) => changeLoginPassword(event)}
           />
+          <br/>
+          <span className="error-message" style={{'color': 'red', 'marginBottom': '5px'}}>{errorMessage}</span>
           <div className="auth-button-container">
             <button
               className="auth-btn"
@@ -211,6 +221,7 @@ const AuthPage = () => {
             }}
           />
           <br/>
+          <span className="error-message" style={{'color': 'red', 'margin': '10px'}}>{errorMessage}</span>
           <div className="auth-button-container">
             <button className="auth-btn" onClick={createAccountHandler}>
               Submit
