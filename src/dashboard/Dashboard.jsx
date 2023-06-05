@@ -16,7 +16,14 @@ const DashboardPage = () => {
   const [chickenPlaces, setChickenPlaces] = React.useState([])
   const [showingNewPlaceForm, setShowingNewPlaceForm] = React.useState(false)
   const [showingPlacesAutocomplete, setShowingPlacesAutocomplete] = React.useState(false)
-  const [newPlaceScore, setNewPlaceScore] = React.useState(0)
+  const [userScoreOverall, setUserScoreOverall] = React.useState(0)
+  const [userScoreJuiciness, setUserScoreJuiciness] = React.useState(0)
+  const [userScoreCrispiness, setUserScoreCrispiness] = React.useState(0)
+  const [userScoreFlavor, setUserScoreFlavor] = React.useState(0)
+  const [userScoreAcquisition, setUserScoreAcquisition] = React.useState(0)
+  const [userScoreVisual, setUserScoreVisual] = React.useState(0)
+  const [userScoreExperience, setUserScoreExperience] = React.useState(0)
+  const [userScoreComments, setUserScoreComments] = React.useState()
   const [selected, setSelected] = React.useState(null)
   const authCtx = React.useContext(AuthContext)
   const db = ref(getDatabase(app));
@@ -41,11 +48,6 @@ const DashboardPage = () => {
     })
   }
 
-  const changeNewPlaceScore = (e) => {
-    setNewPlaceScore((prev) => {
-      return e.target.value
-    })
-  }
 
   const clickNewPlace = () => {
     setView('map')
@@ -72,6 +74,7 @@ const DashboardPage = () => {
         place.averages = placeAverages
         places.push(place);
       }
+      console.dir(places)
       setChickenPlaces(places)
     });
   }
@@ -82,11 +85,27 @@ const DashboardPage = () => {
     updates[`users/${authCtx.user.uid}/places/${selected.place_id}`] = {
       coordinates: selected.coordinates,
       description: selected.description,
-      score: newPlaceScore
+      scores: {
+        overall: userScoreOverall,
+        crispiness: userScoreCrispiness,
+        juiciness: userScoreJuiciness,
+        flavor: userScoreFlavor,
+        acquisition: userScoreAcquisition,
+        visual: userScoreVisual,
+        experience: userScoreExperience,
+        comments: userScoreComments
+      }
     }
     updates[`places/${selected.place_id}/description`] = selected.description
     updates[`places/${selected.place_id}/coordinates`] = selected.coordinates
-    updates[`places/${selected.place_id}/scores/${authCtx.user.uid}/overall`] = newPlaceScore
+    updates[`places/${selected.place_id}/user_scores/${authCtx.user.uid}/overall`] = userScoreOverall
+    updates[`places/${selected.place_id}/user_scores/${authCtx.user.uid}/crispiness`] = userScoreCrispiness
+    updates[`places/${selected.place_id}/user_scores/${authCtx.user.uid}/juiciness`] = userScoreJuiciness
+    updates[`places/${selected.place_id}/user_scores/${authCtx.user.uid}/flavor`] = userScoreFlavor
+    updates[`places/${selected.place_id}/user_scores/${authCtx.user.uid}/acquisition`] = userScoreAcquisition
+    updates[`places/${selected.place_id}/user_scores/${authCtx.user.uid}/visual`] = userScoreVisual
+    updates[`places/${selected.place_id}/user_scores/${authCtx.user.uid}/experience`] = userScoreExperience
+    updates[`places/${selected.place_id}/user_scores/${authCtx.user.uid}/comments`] = userScoreComments
     update((db), updates).then(() => {
       setShowingNewPlaceForm(false)
       setShowingPlacesAutocomplete(false)
@@ -149,8 +168,8 @@ const DashboardPage = () => {
               {chickenPlaces.map((place, i) => (
                 <div className="chicken-place" key={i}>
                   <span style={{'width': '50%', 'textAlign': 'left'}}>{place.description}</span>
-                  <span style={{'width': '25%', 'textAlign': 'center'}}>{place.score}</span>
-                  <span style={{'width': '25%', 'textAlign': 'center'}}>{place.averages.overall}</span>
+                  <span style={{'width': '25%', 'textAlign': 'center'}}>{place.scores?.overall}</span>
+                  <span style={{'width': '25%', 'textAlign': 'center'}}>{place.averages?.overall}</span>
                 </div>
               ))}
             </div>
@@ -205,16 +224,82 @@ const DashboardPage = () => {
         <>
           <div className="modal-background" onClick={() => setShowingNewPlaceForm(false)}></div>
           <div className="modal new-place-modal">
-            <span className="input-label">{selected.description}</span>
-            <span className="input-label">Score: {newPlaceScore}</span>
+            <span className="input-label description">{selected.description}</span>
+            <span className="input-label">Overall Score: {userScoreOverall}</span>
             <input
               className="place-score-input"
               type="range"
               min="0"
               max="10"
               step=".1"
-              value={newPlaceScore}
-              onChange={(event) => changeNewPlaceScore(event)}
+              value={userScoreOverall}
+              onChange={(event) => setUserScoreOverall(event.target.value)}
+            />
+            <span className="input-label">Crispiness: {userScoreCrispiness}</span>
+            <input
+              className="place-score-input"
+              type="range"
+              min="0"
+              max="10"
+              step=".1"
+              value={userScoreCrispiness}
+              onChange={(event) => setUserScoreCrispiness(event.target.value)}
+            />
+            <span className="input-label">Juiciness: {userScoreJuiciness}</span>
+            <input
+              className="place-score-input"
+              type="range"
+              min="0"
+              max="10"
+              step=".1"
+              value={userScoreJuiciness}
+              onChange={(event) => setUserScoreJuiciness(event.target.value)}
+            />
+            <span className="input-label">Seasoning/Flavor: {userScoreFlavor}</span>
+            <input
+              className="place-score-input"
+              type="range"
+              min="0"
+              max="10"
+              step=".1"
+              value={userScoreFlavor}
+              onChange={(event) => setUserScoreFlavor(event.target.value)}
+            />
+            <span className="input-label">Visual Appeal: {userScoreVisual}</span>
+            <input
+              className="place-score-input"
+              type="range"
+              min="0"
+              max="10"
+              step=".1"
+              value={userScoreVisual}
+              onChange={(event) => setUserScoreVisual(event.target.value)}
+            />
+            <span className="input-label">Chicken Acquisition (How easy was it to get the chicken?): {userScoreAcquisition}</span>
+            <input
+              className="place-score-input"
+              type="range"
+              min="0"
+              max="10"
+              step=".1"
+              value={userScoreAcquisition}
+              onChange={(event) => setUserScoreAcquisition(event.target.value)}
+            />
+            <span className="input-label">Chicken Experience (How did the chicken make you feel? How was the dining experience? How was the atmosphere?): {userScoreExperience}</span>
+            <input
+              className="place-score-input"
+              type="range"
+              min="0"
+              max="10"
+              step=".1"
+              value={userScoreExperience}
+              onChange={(event) => setUserScoreExperience(event.target.value)}
+            />
+            <span className="input-label">Comments</span>
+            <textarea
+              className="place-score-input comments"
+              value={userScoreComments}
+              onChange={(event) => setUserScoreComments(event.target.value)}
             />
             <div className="modal-buttons">
               <span className="cancel-button" onClick={() => setShowingNewPlaceForm(false)}>Cancel</span>
