@@ -1,5 +1,5 @@
 import React from "react";
-import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
+import { useLoadScript } from '@react-google-maps/api'
 import usePlacesAutocomplete, { getGeocode, getLatLng, } from 'use-places-autocomplete'
 import app from '../firebase.js'
 import { getDatabase, get, child, ref, update } from "firebase/database";
@@ -16,7 +16,6 @@ const DashboardPage = () => {
   const [chickenPlaces, setChickenPlaces] = React.useState([])
   const [showingNewPlaceForm, setShowingNewPlaceForm] = React.useState(false)
   const [showingPlacesAutocomplete, setShowingPlacesAutocomplete] = React.useState(false)
-  const [newPlaceName, setNewPlaceName] = React.useState('')
   const [newPlaceScore, setNewPlaceScore] = React.useState(0)
   const [selected, setSelected] = React.useState(null)
   const authCtx = React.useContext(AuthContext)
@@ -31,6 +30,7 @@ const DashboardPage = () => {
     getChickenScores()
   }, [authCtx.user])
 
+  // switch view between list and map mode
   const toggleMapView = () => {
     setView((prev) => {
       if (prev === 'list') {
@@ -39,10 +39,6 @@ const DashboardPage = () => {
         return 'list'
       }
     })
-  }
-
-  const changeNewPlaceName = (event) => {
-    setNewPlaceName(event.target.value)
   }
 
   const changeNewPlaceScore = (e) => {
@@ -56,6 +52,7 @@ const DashboardPage = () => {
     setShowingPlacesAutocomplete(true)
   }
 
+  // gets average scores (scores from all users)
   const getPlaceAverages = async (place_uid) => {
     let placeData = await get(child(db, `places/${place_uid}/averages/`)).then((snapshot) => {
       return snapshot.val()
@@ -63,6 +60,7 @@ const DashboardPage = () => {
     return placeData
   }
 
+  // gets scores for places the user has visited
   const getChickenScores = async () => {
     get(child(db, `/users/${authCtx?.user?.uid}/places`)).then(async (snapshot) => {
       let places = [];
@@ -78,6 +76,7 @@ const DashboardPage = () => {
     });
   }
 
+  // submit user review
   const createNewPlace = () => {
     let updates = {}
     updates[`users/${authCtx.user.uid}/places/${selected.place_id}`] = {
@@ -96,6 +95,7 @@ const DashboardPage = () => {
     })
   }
 
+  // autocomplete place search
   const PlacesAutocomplete = ({setSelected}) => {
     const {
       ready,
@@ -134,6 +134,7 @@ const DashboardPage = () => {
     )
   }
 
+  // list of places user has reviewed
   const ChickenPlacesList = () => {
     return (
       <>
