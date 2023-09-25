@@ -4,7 +4,7 @@
   width: 100%;
   .action-buttons {
     position: absolute;
-    right: 60px;
+    right: 450px;
     top: 10px;
     z-index: 1;
     display: flex;
@@ -32,12 +32,13 @@
   }
   .chicken-places-list {
     position: absolute;
-    width: calc(100% - 40px);
-    top: 40px;
-    margin: 20px;
-    border-radius: 10px;
+    width: 390px;
+    height: 100%;
+    right: 0px;
+    top: 0px;
+    margin: 0px;
     background: white;
-    border: 1px solid black;
+    border-left: 1px solid black;
     .column-headers {
       display: flex;
       justify-content: space-between;
@@ -49,6 +50,7 @@
     }
     .chicken-places {
       .chicken-place {
+        cursor: pointer;
         border-bottom: 1px solid darkgray;
         display: flex;
         justify-content: space-between;
@@ -56,7 +58,12 @@
           margin: 10px 20px;
         }
         &:last-child {
-          border-bottom: none;
+          // border-bottom: none;
+        }
+        .chicken-place-score {
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
       }
     }
@@ -65,24 +72,24 @@
 .modal-background {
   position: absolute;
   z-index: 10;
-  width: 100%;
+  width: calc(100% - 400px);
   height: calc(100% - 100px);
   background: rgba(0, 0, 0, .8);
 }
-.modal {
+.new-place-form {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border: 1px solid black;
-  border-radius: 5px;
+  top: 100px;
+  right: 0;
+  width: 350px;
+  height: calc(100% - 140px);
+  border-left: 1px solid black;
   background: white;
   z-index: 15;
   display: flex;
   flex-direction: column;
   padding: 20px;
-  max-height: 500px;
-  max-width: 400px;
+  // max-height: 500px;
+  // max-width: 400px;
   overflow: auto;
   .input-label {
     margin-bottom: 10px;
@@ -125,7 +132,7 @@
   position: absolute;
   z-index: 1;
   top: 10px;
-  right: 160px;
+  right: 550px;
   .places-input {
     height: 40px;
     border: none;

@@ -13,7 +13,7 @@ const NavbarComponent = () => {
   return (
     <>
       <div className="navbar">
-        <span className="navbar-text">The Cynerge Chicken Experience</span>
+        <span className="navbar-text">Chicken Gang</span>
         <img src={Avatar} alt="" className="avatar-image" />
         <span className="logout-button" onClick={() => logout()}>logout</span>
       </div>

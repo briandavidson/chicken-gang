@@ -9,13 +9,13 @@ import Map from '../map/Map'
 import './Dashboard.scss';
 
 const DashboardPage = () => {
-  const [view, setView] = React.useState('list')
+  const [view, setView] = React.useState('map')
   const [zoom, setZoom] = React.useState(13)
   const [lat, setLat] = React.useState(42.637760)
   const [lng, setLng] = React.useState(-83.292260)
   const [chickenPlaces, setChickenPlaces] = React.useState([])
   const [showingNewPlaceForm, setShowingNewPlaceForm] = React.useState(false)
-  const [showingPlacesAutocomplete, setShowingPlacesAutocomplete] = React.useState(false)
+  const [showingPlacesAutocomplete, setShowingPlacesAutocomplete] = React.useState(true)
   const [userScoreOverall, setUserScoreOverall] = React.useState(0)
   const [userScoreJuiciness, setUserScoreJuiciness] = React.useState(0)
   const [userScoreCrispiness, setUserScoreCrispiness] = React.useState(0)
@@ -23,7 +23,7 @@ const DashboardPage = () => {
   const [userScoreAcquisition, setUserScoreAcquisition] = React.useState(0)
   const [userScoreVisual, setUserScoreVisual] = React.useState(0)
   const [userScoreExperience, setUserScoreExperience] = React.useState(0)
-  const [userScoreComments, setUserScoreComments] = React.useState()
+  const [userScoreComments, setUserScoreComments] = React.useState('')
   const [selected, setSelected] = React.useState(null)
   const authCtx = React.useContext(AuthContext)
   const db = ref(getDatabase(app));
@@ -47,7 +47,6 @@ const DashboardPage = () => {
       }
     })
   }
-
 
   const clickNewPlace = () => {
     setView('map')
@@ -74,7 +73,6 @@ const DashboardPage = () => {
         place.averages = placeAverages
         places.push(place);
       }
-      console.dir(places)
       setChickenPlaces(places)
     });
   }
@@ -108,10 +106,25 @@ const DashboardPage = () => {
     updates[`places/${selected.place_id}/user_scores/${authCtx.user.uid}/comments`] = userScoreComments
     update((db), updates).then(() => {
       setShowingNewPlaceForm(false)
-      setShowingPlacesAutocomplete(false)
-      setView('list')
+      setShowingPlacesAutocomplete(true)
+      setView('map')
       getChickenScores()
     })
+  }
+
+  const selectPlaceFromList = (place) => {
+    setLat(place.coordinates.lat)
+    setLng(place.coordinates.lng)
+    setZoom(13)
+    setUserScoreOverall(place.scores.overall)
+    setUserScoreFlavor(place.scores.flavor)
+    setUserScoreVisual(place.scores.visual)
+    setUserScoreComments(place.scores.comments)
+    setUserScoreJuiciness(place.scores.juiciness)
+    setUserScoreCrispiness(place.scores.crispiness)
+    setUserScoreAcquisition(place.scores.acquisition)
+    setSelected(place)
+    setShowingNewPlaceForm(true)
   }
 
   // autocomplete place search
@@ -136,6 +149,25 @@ const DashboardPage = () => {
           description: place.description
         }
       })
+      // get the scores for the selected place or set scores to 0 if the place is new
+      let existingReview = chickenPlaces.find((chickenPlace) => chickenPlace.uid === place.place_id)
+      if (existingReview) {
+        setUserScoreOverall(existingReview.scores.overall)
+        setUserScoreFlavor(existingReview.scores.flavor)
+        setUserScoreVisual(existingReview.scores.visual)
+        setUserScoreComments(existingReview.scores.comments)
+        setUserScoreJuiciness(existingReview.scores.juiciness)
+        setUserScoreCrispiness(existingReview.scores.crispiness)
+        setUserScoreAcquisition(existingReview.scores.acquisition)
+      } else {
+        setUserScoreOverall(0)
+        setUserScoreFlavor(0)
+        setUserScoreVisual(0)
+        setUserScoreComments('')
+        setUserScoreJuiciness(0)
+        setUserScoreCrispiness(0)
+        setUserScoreAcquisition(0)
+      }
       setShowingNewPlaceForm(true)
     }
 
@@ -166,10 +198,10 @@ const DashboardPage = () => {
             </div>
             <div className="chicken-places">
               {chickenPlaces.map((place, i) => (
-                <div className="chicken-place" key={i}>
+                <div className="chicken-place" key={i} onClick={() => selectPlaceFromList(place)}>
                   <span style={{'width': '50%', 'textAlign': 'left'}}>{place.description}</span>
-                  <span style={{'width': '25%', 'textAlign': 'center'}}>{place.scores?.overall}</span>
-                  <span style={{'width': '25%', 'textAlign': 'center'}}>{place.averages?.overall}</span>
+                  <span className="chicken-place-score">{place.scores?.overall}</span>
+                  <span className="chicken-place-score">{place.averages?.overall}</span>
                 </div>
               ))}
             </div>
@@ -188,7 +220,6 @@ const DashboardPage = () => {
     return (
       <div className={view === 'list' ? 'action-buttons list-mode' : 'action-buttons'}>
         <span onClick={() => clickNewPlace()} className="action-button new-place">+</span>
-        <span onClick={() => toggleMapView()} className="action-button map-view">🚩</span>
       </div>
     )
   }
@@ -209,6 +240,8 @@ const DashboardPage = () => {
           )}
           {isLoaded && (
             <>
+              <ActionButtons/>
+              <ChickenPlacesList/>
               {showingPlacesAutocomplete && (
                 <div className="places-container">
                   <PlacesAutocomplete setSelected={setSelected}/>
@@ -222,9 +255,8 @@ const DashboardPage = () => {
       )}
       {showingNewPlaceForm && (
         <>
-          <div className="modal-background" onClick={() => setShowingNewPlaceForm(false)}></div>
-          <div className="modal new-place-modal">
-            <span className="input-label description">{selected.description}</span>
+          <div className="new-place-form">
+            <span className="input-label description">{selected?.description}</span>
             <span className="input-label">Overall Score: {userScoreOverall}</span>
             <input
               className="place-score-input"
