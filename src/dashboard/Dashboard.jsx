@@ -208,8 +208,10 @@ const DashboardPage = () => {
           </div>
         )}
         {chickenPlaces?.length === 0 && (
-          <div className="no-reviews">
-            <span>What, don't you like chicken? You haven't reviewed any places! Click on the '+' button to get started!</span>
+          <div className="chicken-places-list">
+            <div className="no-reviews">
+              <span>What, don't you like chicken? You haven't reviewed any chicken dealers yet!</span>
+            </div>
           </div>
         )}
       </>
@@ -229,7 +231,6 @@ const DashboardPage = () => {
       <NavbarComponent/>
       {view === 'list' && (
         <div className="dashboard">
-          <ActionButtons/>
           <ChickenPlacesList/>
         </div>
       )}
@@ -240,14 +241,12 @@ const DashboardPage = () => {
           )}
           {isLoaded && (
             <>
-              <ActionButtons/>
               <ChickenPlacesList/>
               {showingPlacesAutocomplete && (
                 <div className="places-container">
                   <PlacesAutocomplete setSelected={setSelected}/>
                 </div>
               )}
-              <ActionButtons/>
               <Map zoom={zoom} lat={lat} lng={lng}/>
             </>
           )}

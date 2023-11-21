@@ -132,7 +132,7 @@
   position: absolute;
   z-index: 1;
   top: 10px;
-  right: 550px;
+  right: 450px;
   .places-input {
     height: 40px;
     border: none;
@@ -140,6 +140,8 @@
     width: 150px;
     position: absolute;
     right: 0px;
+    box-shadow: lightgray 0px 0px 4px 1px;
+    border-radius: 1px;
   }
   .places-results {
     position: absolute;
@@ -163,9 +165,10 @@
 }
 
 .no-reviews {
+  padding: 25px;
   position: absolute;
-  width: 100%;
-  height: calc(100vh - 100px);
+  width: calc(100% - 50px);
+  height: calc(100vh - 150px);
   top: 0;
   left: 0;
   display: flex;
