@@ -30,6 +30,11 @@
           cursor: pointer;
         }
       }
+      .reset-password {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+      }
     }
     .auth-button-container * {
       margin: 5px;

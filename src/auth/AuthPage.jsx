@@ -6,7 +6,7 @@ import bok1 from '../assets/sounds/bok1.mp3'
 import bok2 from '../assets/sounds/bok2.mp3'
 import bok3 from '../assets/sounds/bok3.mp3'
 import bigok from '../assets/sounds/bigok.mp3'
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { getDatabase, get, child, ref, set } from "firebase/database";
 import app from "../firebase.js"
 import './AuthPage.scss'
@@ -88,6 +88,12 @@ const AuthPage = () => {
     })
   }
 
+  const switchToResetPassword = () => {
+    setMode(() => {
+      return 'reset-password'
+    })
+  }
+
   const playBokSound = () => {
     let random_bok = Math.floor(Math.random() * 3);
     let bok = new Audio(bok1)
@@ -143,6 +149,19 @@ const AuthPage = () => {
       console.error(error);
     });
   };
+
+  const resetPassword = () => {
+    console.log('forgot pw')
+    sendPasswordResetEmail(auth, enteredEmail).then(() => {
+      setMode((prev) => {
+        return 'login'
+      })
+    }).catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+    });
+  }
+
   return (
     <>
     {mode === 'login' && (
@@ -180,6 +199,7 @@ const AuthPage = () => {
             <button className="auth-btn" color="info" onClick={() => switchToSignup()}>
               Signup
             </button>
+            <span className="reset-password" onClick={() => switchToResetPassword()}>Forgot password?</span>
           </div>
         </div>
       </div>
@@ -227,6 +247,35 @@ const AuthPage = () => {
               Submit
             </button>
             <button className="auth-btn" onClick={() => switchToLogin()}>Already Have An Account</button>
+          </div>
+        </div>
+      </div>
+    )}
+    {mode === 'reset-password' && (
+      <div className="auth-page">
+        <div className="wallpaper"></div>
+        <div className="auth-container">
+          <img
+            src={ChickenGangLogo}
+            alt="class bucks logo"
+            className="auth-logo"
+          />
+          <p>Enter Email</p>
+          <input
+            className="auth-input"
+            type="email"
+            placeholder="email"
+            onChange={(event) => {
+              changeSignupEmail(event)
+            }}
+          />
+          <br/>
+          <span className="error-message" style={{'color': 'red', 'margin': '10px'}}>{errorMessage}</span>
+          <div className="auth-button-container">
+            <button className="auth-btn" onClick={() => resetPassword()}>
+              Submit
+            </button>
+            <button className="auth-btn" onClick={() => switchToLogin()}>Cancel</button>
           </div>
         </div>
       </div>
