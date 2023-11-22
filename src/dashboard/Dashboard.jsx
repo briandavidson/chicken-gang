@@ -16,6 +16,7 @@ const DashboardPage = () => {
   const [chickenPlaces, setChickenPlaces] = React.useState([])
   const [showingNewPlaceForm, setShowingNewPlaceForm] = React.useState(false)
   const [showingPlacesAutocomplete, setShowingPlacesAutocomplete] = React.useState(true)
+  const [showingPlaceInfo, setShowingPlaceInfo] = React.useState(false)
   const [userScoreOverall, setUserScoreOverall] = React.useState(0)
   const [userScoreJuiciness, setUserScoreJuiciness] = React.useState(0)
   const [userScoreCrispiness, setUserScoreCrispiness] = React.useState(0)
@@ -77,22 +78,37 @@ const DashboardPage = () => {
     });
   }
 
+  const reviewPlace = () => {
+    setShowingPlaceInfo(false)
+    setShowingNewPlaceForm(true)
+  }
+
+  const cancelReview = () => {
+    setShowingNewPlaceForm(false)
+    setShowingPlaceInfo(true)
+  }
+
+  const backToMyReviews = () => {
+    setShowingPlaceInfo(false)
+  }
+
   // submit user review
   const createNewPlace = () => {
     let updates = {}
+    let scores = {
+      overall: userScoreOverall,
+      crispiness: userScoreCrispiness,
+      juiciness: userScoreJuiciness,
+      flavor: userScoreFlavor,
+      acquisition: userScoreAcquisition,
+      visual: userScoreVisual,
+      experience: userScoreExperience,
+      comments: userScoreComments
+    }
     updates[`users/${authCtx.user.uid}/places/${selected.place_id}`] = {
       coordinates: selected.coordinates,
       description: selected.description,
-      scores: {
-        overall: userScoreOverall,
-        crispiness: userScoreCrispiness,
-        juiciness: userScoreJuiciness,
-        flavor: userScoreFlavor,
-        acquisition: userScoreAcquisition,
-        visual: userScoreVisual,
-        experience: userScoreExperience,
-        comments: userScoreComments
-      }
+      scores: scores
     }
     updates[`places/${selected.place_id}/description`] = selected.description
     updates[`places/${selected.place_id}/coordinates`] = selected.coordinates
@@ -106,13 +122,36 @@ const DashboardPage = () => {
     updates[`places/${selected.place_id}/user_scores/${authCtx.user.uid}/comments`] = userScoreComments
     update((db), updates).then(() => {
       setShowingNewPlaceForm(false)
+      setShowingPlaceInfo(true)
       setShowingPlacesAutocomplete(true)
       setView('map')
+      setSelected((prev) => {
+        return {
+          existing_review: true,
+          submitted_scores: prev.submitted_scores,
+          averages: prev.averages,
+          coordinates: {
+            lat: prev.coordinates.lat,
+            lng: prev.coordinates.lng
+          },
+          place_id: prev.place_id,
+          description: prev.description
+        }
+      })
       getChickenScores()
     })
   }
 
-  const selectPlaceFromList = (place) => {
+  const selectPlaceFromList = async (place) => {
+    let placeInfo = await get(child(db, `/places/${place.uid}`)).then(async (snapshot) => {
+      return snapshot.val()
+    })
+    let submitted_scores = []
+    if (placeInfo) {
+      for (let score_id in placeInfo.user_scores) {
+        submitted_scores.push(placeInfo.user_scores[score_id])
+      }
+    }
     setLat(place.coordinates.lat)
     setLng(place.coordinates.lng)
     setZoom(13)
@@ -123,8 +162,20 @@ const DashboardPage = () => {
     setUserScoreJuiciness(place.scores.juiciness)
     setUserScoreCrispiness(place.scores.crispiness)
     setUserScoreAcquisition(place.scores.acquisition)
-    setSelected(place)
-    setShowingNewPlaceForm(true)
+    setSelected((prev) => {
+      return {
+        existing_review: true,
+        submitted_scores: submitted_scores,
+        averages: placeInfo?.averages,
+        coordinates: {
+          lat: place.coordinates.lat,
+          lng: place.coordinates.lng
+        },
+        place_id: place.place_id,
+        description: place.description
+      }
+    })
+    setShowingPlaceInfo(true)
   }
 
   // autocomplete place search
@@ -138,17 +189,19 @@ const DashboardPage = () => {
     } = usePlacesAutocomplete()
 
     const handleSelect = async (place) => {
+      let placeInfo = await get(child(db, `/places/${place.place_id}`)).then(async (snapshot) => {
+        return snapshot.val()
+      })
+      let submitted_scores = []
+      if (placeInfo) {
+        for (let score_id in placeInfo.user_scores) {
+          submitted_scores.push(placeInfo.user_scores[score_id])
+        }
+      }
       const results = await getGeocode({address: place.description})
       let lat_lng = await getLatLng(results[0])
       setLat(lat_lng.lat)
       setLng(lat_lng.lng)
-      setSelected((prev) => {
-        return {
-          coordinates: lat_lng,
-          place_id: place.place_id,
-          description: place.description
-        }
-      })
       // get the scores for the selected place or set scores to 0 if the place is new
       let existingReview = chickenPlaces.find((chickenPlace) => chickenPlace.uid === place.place_id)
       if (existingReview) {
@@ -168,7 +221,17 @@ const DashboardPage = () => {
         setUserScoreCrispiness(0)
         setUserScoreAcquisition(0)
       }
-      setShowingNewPlaceForm(true)
+      setSelected((prev) => {
+        return {
+          existing_review: existingReview,
+          submitted_scores: submitted_scores,
+          averages: placeInfo?.averages,
+          coordinates: lat_lng,
+          place_id: place.place_id,
+          description: place.description
+        }
+      })
+      setShowingPlaceInfo(true)
     }
 
     return (
@@ -192,9 +255,9 @@ const DashboardPage = () => {
         {chickenPlaces?.length > 0 && (
           <div className="chicken-places-list">
             <div className="column-headers">
-              <span style={{'width': 'calc(50% - 40px)', 'textAlign': 'left'}}>Place</span>
-              <span style={{'width': 'calc(25% - 40px)', 'textAlign': 'center'}}>Your Score</span>
-              <span style={{'width': 'calc(25% - 40px)', 'textAlign': 'center'}}>Chicken Gang Score</span>
+              <span style={{'display': 'flex', 'width': 'calc(50% - 40px)', 'textAlign': 'left'}}>Place</span>
+              <span style={{'display': 'flex', 'width': 'calc(25% - 40px)', 'textAlign': 'center'}}>Your Score</span>
+              <span style={{'display': 'flex', 'width': 'calc(25% - 40px)', 'textAlign': 'center'}}>Chicken Gang Score</span>
             </div>
             <div className="chicken-places">
               {chickenPlaces.map((place, i) => (
@@ -333,11 +396,29 @@ const DashboardPage = () => {
               onChange={(event) => setUserScoreComments(event.target.value)}
             />
             <div className="modal-buttons">
-              <span className="cancel-button" onClick={() => setShowingNewPlaceForm(false)}>Cancel</span>
+              <span className="cancel-button" onClick={() => cancelReview()}>Cancel</span>
               <span className="submit-button" onClick={() => createNewPlace()}>Submit</span>
             </div>
           </div>
         </>
+      )}
+      {showingPlaceInfo && (
+        <div className="place-info">
+          <span className="back-to-my-reviews" onClick={() => backToMyReviews()}>← Back to My Chicken Places</span>
+          <span><strong>{selected.description}</strong></span>
+          <span className="show-review" onClick={() => reviewPlace()}>{selected.existing_review ? 'Edit My Review' : 'Add My Review'}</span>
+          {selected.submitted_scores?.length > 0 && (
+            <>
+              <span className="average-overall">Chicken Gang Score: <strong>{selected.averages.overall}</strong></span>
+              {selected.submitted_scores.map((review) => (
+                <span className="submitted-comment">{review.comments}</span>
+              ))}
+            </>
+          )}
+          {!selected.submitted_scores.length && (
+            <span>Nobody has reviewed this place yet. You could be the first!</span>
+          )}
+        </div>
       )}
     </>
   );

@@ -80,6 +80,49 @@
   height: calc(100% - 100px);
   background: rgba(0, 0, 0, .8);
 }
+.place-info {
+  position: absolute;
+  top: 100px;
+  right: 0;
+  width: 350px;
+  height: calc(100% - 140px);
+  border-left: 1px solid black;
+  background: white;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: auto;
+  .back-to-my-reviews {
+    cursor: pointer;
+    text-decoration: underline;
+    color: blue;
+    margin-bottom: 30px;
+  }
+  .show-review {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: center;
+    margin: 20px 0px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid black;
+  }
+  .average-overall {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .user-reviews-title {
+    text-align: center;
+  }
+  .submitted-comment {
+    font-style: italic;
+    margin: 10px;
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 10px;
+  }
+}
 .new-place-form {
   position: absolute;
   top: 100px;
@@ -92,8 +135,6 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
-  // max-height: 500px;
-  // max-width: 400px;
   overflow: auto;
   .input-label {
     margin-bottom: 10px;
