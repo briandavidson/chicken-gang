@@ -192,14 +192,14 @@ const DashboardPage = () => {
         {chickenPlaces?.length > 0 && (
           <div className="chicken-places-list">
             <div className="column-headers">
-              <span style={{'width': '50%', 'textAlign': 'left'}}>Place</span>
-              <span style={{'width': '25%', 'textAlign': 'center'}}>Your Score</span>
-              <span style={{'width': '25%', 'textAlign': 'center'}}>Chicken Gang Score</span>
+              <span style={{'width': 'calc(50% - 40px)', 'textAlign': 'left'}}>Place</span>
+              <span style={{'width': 'calc(25% - 40px)', 'textAlign': 'center'}}>Your Score</span>
+              <span style={{'width': 'calc(25% - 40px)', 'textAlign': 'center'}}>Chicken Gang Score</span>
             </div>
             <div className="chicken-places">
               {chickenPlaces.map((place, i) => (
                 <div className="chicken-place" key={i} onClick={() => selectPlaceFromList(place)}>
-                  <span style={{'width': '50%', 'textAlign': 'left'}}>{place.description}</span>
+                  <span style={{'width': 'calc(50% - 40px)', 'textAlign': 'left'}}>{place.description}</span>
                   <span className="chicken-place-score">{place.scores?.overall}</span>
                   <span className="chicken-place-score">{place.averages?.overall}</span>
                 </div>
@@ -210,7 +210,7 @@ const DashboardPage = () => {
         {chickenPlaces?.length === 0 && (
           <div className="chicken-places-list">
             <div className="no-reviews">
-              <span>What, don't you like chicken? You haven't reviewed any chicken dealers yet!</span>
+              <span>What, don't you like chicken? Search for a chicken place and leave a review to get started!</span>
             </div>
           </div>
         )}

@@ -23,6 +23,7 @@ const AuthPage = () => {
 
   // redirect logged in user to private route
   if (authCtx.user) {
+    console.dir(authCtx.user)
     return <Redirect to="dashboard" />;
   }
 
@@ -68,7 +69,13 @@ const AuthPage = () => {
   const loginHandler = () => {
     playBigokSound()
     signInWithEmailAndPassword(auth, enteredEmail, enteredPassword).then((userCredential) => {
-      getUserData(userCredential)
+      console.dir(userCredential)
+      if (userCredential.user.emailVerified) {
+        getUserData(userCredential)
+      } else {
+        console.log('VERIFY')
+        return <Redirect to="verify" />;
+      }
     }).catch((error) => {
       setErrorMessage((prev) => {
         return error.message
@@ -151,7 +158,6 @@ const AuthPage = () => {
   };
 
   const resetPassword = () => {
-    console.log('forgot pw')
     sendPasswordResetEmail(auth, enteredEmail).then(() => {
       setMode((prev) => {
         return 'login'

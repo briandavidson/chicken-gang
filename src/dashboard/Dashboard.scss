@@ -44,6 +44,7 @@
       justify-content: space-between;
       border-bottom: 1px solid black;
       span {
+        align-items: center;
         font-weight: bold;
         margin: 10px 20px;
       }
@@ -55,12 +56,15 @@
         display: flex;
         justify-content: space-between;
         span {
+          display: flex;
+          align-items: center;
           margin: 10px 20px;
         }
         &:last-child {
           // border-bottom: none;
         }
         .chicken-place-score {
+          width: calc(25% - 40px);
           display: flex;
           align-items: center;
           justify-content: center;

@@ -15,7 +15,6 @@ const auth = getAuth(app);
 
 export const AuthContextProvider = (props) => {
   const [user, setUser] = useState(null);
-
   let history = useHistory();
 
   React.useEffect(() => {
@@ -23,11 +22,19 @@ export const AuthContextProvider = (props) => {
       if (firebaseUser) {
         get(child(db, `users/${firebaseUser.uid}`)).then((snapshot) => {
           if (snapshot.exists()) {
+            console.log('snapshot exists')
+            console.dir(firebaseUser)
             let authedUser = snapshot.val()
             authedUser.uid = firebaseUser.uid
-            setUser(authedUser)
+            if (firebaseUser.emailVerified) {
+              setUser(authedUser)
+            } else {
+              history.push('/verify')
+            }
           } else {
             console.log('no user data in db')
+            console.dir(firebaseUser)
+            history.push('/verify')
             return null
           }
         }).catch((error) => {
